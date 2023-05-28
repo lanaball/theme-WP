@@ -11,6 +11,26 @@ function add_my_assets()
 add_action('wp_enqueue_scripts', 'add_my_assets');
 
 
+
+
+
+
+
+function add_my_theme_supports()
+{
+    add_theme_support('title-tag');
+    add_theme_support('post-thumbnails');
+    add_theme_support('html5', array('search-form'));
+    add_theme_support('menus');
+}
+add_action('after_setup_theme', 'add_my_theme_supports');
+
+
+
+
+
+
+
 // ------------------- navigation custom function -------------------
 function add_my_menus()
 {
@@ -26,72 +46,71 @@ add_action('init', 'add_my_menus');
 
 
 
-function add_coffee_post_type()
-{
-    $labels = array(
-        'name' => 'New Coffee',
-        'singular_name' => 'New Coffee',
-        'menu_name' => 'New Coffee',
-        'add_new' => 'Add New',
-        'add_new_item' => 'Add New Custom Post',
-        'edit' => 'Edit',
-        'edit_item' => 'Edit Custom Post',
-        'new_item' => 'New Custom Post',
-        'view' => 'View',
-        'view_item' => 'View Custom Post',
-        'search_items' => 'Search Custom Posts',
-        'not_found' => 'No custom posts found',
-        'not_found_in_trash' => 'No custom posts found in trash',
-        'parent' => 'Parent Custom Post'
-    );
 
-    $args = array(
-        'labels' => $labels,
+
+function add_beverage_post_type()
+{
+    register_post_type('beverage', array(
+        'labels' => array(
+            'name' => __('Beverages'),
+            'singular_name' => __('Beverage'),
+            'add_new_item' => 'Add New Beverage',
+            'edit_item' => 'Edit Beverage',
+            'all_items' => 'All Beverages',
+            'view_item' => 'View Beverage',
+            'search_items' => 'Search Beverages',
+            'not_found' => 'No Beverages Found',
+            'not_found_in_trash' => 'No Beverages Found in Trash',
+        ),
         'public' => true,
         'has_archive' => true,
-        'publicly_queryable' => true,
-        'query_var' => true,
-        'rewrite' => array('slug' => 'coffee_post'),
-        'capability_type' => 'post',
-        'supports' => array('title', 'editor', 'thumbnail', 'custom-fields'),
-        'taxonomies' => array('category', 'post_tag', 'publications', 'surveys', 'events', 'circular'), // Add taxonomies if needed
-        'menu_position' => 5,
-        'menu_icon' => 'dashicons-admin-post', // Customize the menu icon
-        'show_in_rest' => true // Enable Gutenberg editor support
-    );
-
-    register_post_type('coffee_post', $args);
+        'supports' => array('title', 'editor', 'thumbnail', 'excerpt'),
+        'taxonomies' => array('beverage-type'),
+    ));
 }
-add_action('init', 'add_coffee_post_type');
+add_action('init', 'add_beverage_post_type');
 
 
-function coffee_types_taxonomy()
+
+
+
+
+function add_beverage_taxonomy()
 {
-    $labels = array(
-        'name'              => _x('Local Branches', 'taxonomy general name'),
-        'singular_name'     => _x('Local Branch', 'taxonomy singular name'),
-        'search_items'      => __('Search Local Branches'),
-        'all_items'         => __('All Local Branches'),
-        'parent_item'       => __('Parent Local Branch'),
-        'parent_item_colon' => __('Parent Local Branch:'),
-        'edit_item'         => __('Edit Local Branch'),
-        'update_item'       => __('Update Local Branch'),
-        'add_new_item'      => __('Add New Local Branch'),
-        'new_item_name'     => __('New Local Branch Name'),
-        'menu_name'         => __('Local Branches'),
-    );
-
-    $args = array(
-        'hierarchical'      => true,
-        'labels'            => $labels,
-        'public'            => true,
-        'show_ui'           => true,
-        'show_in_rest'      => true,
-        'show_admin_column' => true,
-        'query_var'         => true,
-        'rewrite'           => array('slug' => 'coffee-types'),
-    );
-
-    register_taxonomy('coffee-types', array('post'), $args);
+    register_taxonomy('beverage-type', 'beverage', array(
+        'labels' => array(
+            'name' => __('Beverage Types'),
+            'singular_name' => __('Beverage Type'),
+            'add_new_item' => 'Add New Beverage Type',
+            'edit_item' => 'Edit Beverage Type',
+            'all_items' => 'All Beverage Types',
+            'view_item' => 'View Beverage Type',
+            'search_items' => 'Search Beverage Types',
+            'not_found' => 'No Beverage Types Found',
+            'not_found_in_trash' => 'No Beverage Types Found in Trash',
+        ),
+        'public' => true,
+        'hierarchical' => true,
+    ));
 }
-add_action('init', 'coffee_types_taxonomy');
+add_action('init', 'add_beverage_taxonomy');
+
+
+
+
+
+
+function my_disable_gutenberg($current_status, $post_type)
+{
+
+    // Disabled post types
+    $disabled_post_types = array('beverage');
+
+    // Change $can_edit to false for any post types in the disabled post types array
+    if (in_array($post_type, $disabled_post_types, true)) {
+        $current_status = false;
+    }
+
+    return $current_status;
+}
+add_filter('use_block_editor_for_post_type', 'my_disable_gutenberg', 10, 2);
