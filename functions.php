@@ -91,6 +91,7 @@ function add_beverage_taxonomy()
         ),
         'public' => true,
         'hierarchical' => true,
+        'show_admin_column' => true,
     ));
 }
 add_action('init', 'add_beverage_taxonomy');
@@ -114,3 +115,22 @@ function my_disable_gutenberg($current_status, $post_type)
     return $current_status;
 }
 add_filter('use_block_editor_for_post_type', 'my_disable_gutenberg', 10, 2);
+
+
+
+function add_my_customize_stuff($wp_customize) {
+    $wp_customize->add_section('front-page-header-section', array(
+        'title' => 'Front Page Header Settings',
+        'description' => 'Change the text and image of the front page'
+    ));
+        $wp_customize->add_setting('front-page-header-image', array(
+            'default' => '',
+        ));
+
+        $wp_customize->add_control(new WP_Customize_Media_Control($wp_customize, 'front-page-header-image', array(
+            'label' => 'Header Image',
+            'section' => 'front-page-header-section',
+            'settings' => 'front-page-header-image'
+        )));
+}
+add_action('customize_register', 'add_my_customize_stuff');
